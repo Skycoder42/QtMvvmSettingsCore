@@ -1,0 +1,23 @@
+{
+  "name": "de.skycoder42.qtmvvm.settings.core",
+  "description": "The core part of the QtMvvm settings module",
+  "author": {
+    "name": "Skycoder",
+    "email": "skycoder42.de@gmx.de"
+  },
+  "repository": {
+    "type": "GITHUB",
+    "url": "https://github.com/Skycoder42/QtMvvmSettingsCore.git"
+  },
+  "version": {
+    "label": "1.0.0",
+    "revision": "",
+    "fingerprint": ""
+  },
+  "dependencies": [
+    "de.skycoder42.qtmvvm.core@1.0.0"
+  ],
+  "license": "BSD_3_CLAUSE",
+  "pri_filename": "de_skycoder42_qtmvvm_settings_core.pri",
+  "webpage": "https://github.com/Skycoder42/QtMvvm"
+}
