@@ -1,9 +1,9 @@
 #ifndef XMLSETTINGSSETUPLOADER_H
 #define XMLSETTINGSSETUPLOADER_H
 
-#include "settingssetuploader.h"
 #include <QXmlStreamReader>
 #include <QCoreApplication>
+#include "settingssetuploader.h"
 
 class XmlSettingsSetupLoader : public SettingsSetupLoader
 {

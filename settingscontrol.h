@@ -1,11 +1,11 @@
 #ifndef SETTINGSCONTROL_H
 #define SETTINGSCONTROL_H
 
-#include "control.h"
-#include "settingssetuploader.h"
-#include "coreapp.h"
+#include <control.h>
+#include <coreapp.h>
 #include <QDir>
 #include <QSettings>
+#include "settingssetuploader.h"
 
 class SettingsControl : public Control
 {
