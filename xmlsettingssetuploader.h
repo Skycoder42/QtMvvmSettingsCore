@@ -12,7 +12,11 @@ class XmlSettingsSetupLoader : public SettingsSetupLoader
 public:
 	SettingsSetup loadSetup(const QByteArray &platform, QIODevice *device, QIODevice *extraPropertyDevice) override;
 
+	static void overwriteDefaultIcon(const QUrl &defaultIcon);
+
 private:
+	static QUrl defaultIcon;
+
 	void throwError(QXmlStreamReader &reader, const QString &customError = {});
 
 	SettingsCategory readCategory(QXmlStreamReader &reader, const QByteArray &platform, const QVariantHash &extraProperties);

@@ -6,6 +6,8 @@
 #define stringValue(key) attributes().value(key).toString()
 #define boolValue(key) attributes().value(key) == "true"
 
+QUrl XmlSettingsSetupLoader::defaultIcon(QStringLiteral("qrc:/qtmvvm/icons/settings.svg"));
+
 SettingsSetup XmlSettingsSetupLoader::loadSetup(const QByteArray &platform, QIODevice *device, QIODevice *extraPropertyDevice)
 {
 	QXmlStreamReader reader(device);
@@ -30,6 +32,11 @@ SettingsSetup XmlSettingsSetupLoader::loadSetup(const QByteArray &platform, QIOD
 	}
 
 	return setup;
+}
+
+void XmlSettingsSetupLoader::overwriteDefaultIcon(const QUrl &defaultIcon)
+{
+	XmlSettingsSetupLoader::defaultIcon = defaultIcon;
 }
 
 void XmlSettingsSetupLoader::throwError(QXmlStreamReader &reader, const QString &customError)
@@ -271,7 +278,7 @@ SettingsCategory XmlSettingsSetupLoader::createDefaultCategory()
 {
 	SettingsCategory category;
 	category.title = tr("General Settings");
-	category.icon = QStringLiteral("qrc:/qtmvvm/icons/settings.svg");
+	category.icon = defaultIcon;
 	return category;
 }
 
