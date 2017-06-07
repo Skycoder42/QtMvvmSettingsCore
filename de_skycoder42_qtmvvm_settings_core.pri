@@ -8,3 +8,6 @@ SOURCES += \
 	$$PWD/xmlsettingssetuploader.cpp
 
 INCLUDEPATH += $$PWD
+
+DISTFILES += \
+    $$PWD/lupdate_xml.py

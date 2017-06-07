@@ -7,6 +7,8 @@
 #include <QDir>
 #include <QMetaMethod>
 
+#define trctx(x) QCoreApplication::translate("qtmvvm_settings_xml", x.toUtf8().constData());
+
 SettingsControl::SettingsControl(QObject *parent) :
 	SettingsControl({}, nullptr, parent)
 {}
@@ -66,6 +68,8 @@ SettingsSetup SettingsControl::loadSetup(const QByteArray &platform) const
 				setupFile.close();
 			} else
 				throw setupFile.errorString();
+
+			localize(setup);
 
 			if(_allowCaching)
 				_loadedSetups.insert(platform, setup);
@@ -139,6 +143,27 @@ void SettingsControl::setAllowCaching(bool allowCaching)
 	_allowCaching = allowCaching;
 	_loadedSetups.clear();
 	emit allowCachingChanged(allowCaching);
+}
+
+void SettingsControl::localize(SettingsSetup &setup) const
+{
+	foreach (auto category, setup.categories) {
+		trctx(category.title);
+		trctx(category.tooltip);
+		foreach (auto section, category.sections) {
+			trctx(section.title);
+			trctx(section.tooltip);
+			foreach (auto group, section.groups) {
+				trctx(group.title);
+				foreach (auto entry, group.entries) {
+					trctx(entry.title);
+					trctx(entry.tooltip);
+					foreach (auto key, entry.searchKeys)
+						trctx(key);
+				}
+			}
+		}
+	}
 }
 
 void SettingsControl::doAutoConnections()

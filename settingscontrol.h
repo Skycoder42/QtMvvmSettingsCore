@@ -46,6 +46,9 @@ signals:
 	void valueChanged(const QString &key, const QVariant &value);
 	void allowCachingChanged(bool allowCaching);
 
+protected:
+	virtual void localize(SettingsSetup &setup) const;
+
 private slots:
 	void doAutoConnections();
 
