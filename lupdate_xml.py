@@ -1,46 +1,45 @@
 #!/usr/bin/env python3
-# Usage: lupdate_xml.py xml_source locales
-# Example: lupdate_xml.py settings.xml de template
+# Usage: lupdate_xml.py bindir srcdir locales(space seperated) xml_sources...
 
 import sys
 import os
-from xml.etree.ElementTree import ElementTree, Element, SubElement, parse, tostring
-from xml.dom import minidom
+import subprocess
+from xml.etree.ElementTree import Element, parse
 
-src = sys.argv[1]
-locales = sys.argv[2:]
+bindir = sys.argv[1]
+srcdir = sys.argv[2]
+locales = sys.argv[3].split(" ")
+srces = sys.argv[4:]
 
 trstrings = set()
 
-tree = parse(src)
-root = Element("TS")
-for elem in tree.iter():
-	if elem.tag == "SearchKey":
-		trstrings.add(elem.text)
-	else:
-		if "title" in elem.attrib:
-			trstrings.add(elem.attrib["title"])
-		if "tooltip" in elem.attrib:
-			trstrings.add(elem.attrib["tooltip"])
+for src in srces:
+	tree = parse(os.path.join(srcdir, src))
+	root = Element("TS")
+	for elem in tree.iter():
+		if elem.tag == "SearchKey":
+			trstrings.add(elem.text)
+		else:
+			if "title" in elem.attrib:
+				trstrings.add(elem.attrib["title"])
+			if "tooltip" in elem.attrib:
+				trstrings.add(elem.attrib["tooltip"])
 
-root.attrib["version"] = "2.1"
-
-context = SubElement(root, "context")
-name = SubElement(context, "name")
-name.text = "qtmvvm_settings_xml"
-
+outfile = open(".qtmvvm_settings_xml_ts_dummy.cpp", "w")
+outfile.write("#include <QCoreApplication>\n\n")
+outfile.write("void dummyfn() {\n")
 for str in trstrings:
-	message = SubElement(context, "message")
-	source = SubElement(message, "source")
-	source.text = str
-	translation = SubElement(message, "translation")
-	translation.attrib["type"] = "unfinished"
+	outfile.write("\tQCoreApplication::translate(\"qtmvvm_settings_xml\", \"{}\");\n".format(str))
+outfile.write("}\n")
+outfile.close()
 
+args = [
+	os.path.join(bindir, "lupdate"),
+	"-locations",
+	"relative",
+	outfile.name,
+	"-ts"
+]
 for locale in locales:
-	root.attrib["language"] = locale
-
-	outFile = open(os.path.join(os.path.dirname(src), "qtmvvm_settings_xml_" + locale + ".ts"), "w")
-	print(outFile.name)
-	tree = ElementTree(root)
-	tree.write(outFile, encoding="unicode", xml_declaration=True, short_empty_elements=False)
-	outFile.close()
+	args.append(os.path.join(srcdir, "qtmvvm_settings_xml_" + locale + ".ts"))
+subprocess.run(args)
