@@ -11,9 +11,11 @@ srcdir = sys.argv[2]
 locales = sys.argv[3].split(" ")
 srces = sys.argv[4:]
 
-trstrings = set()
+tsmap = {}
 
 for src in srces:
+	trstrings = set()
+
 	tree = parse(os.path.join(srcdir, src))
 	root = Element("TS")
 	for elem in tree.iter():
@@ -25,11 +27,14 @@ for src in srces:
 			if "tooltip" in elem.attrib:
 				trstrings.add(elem.attrib["tooltip"])
 
+	tsmap[os.path.basename(src)] = trstrings
+
 outfile = open(".qtmvvm_settings_xml_ts_dummy.cpp", "w")
 outfile.write("#include <QCoreApplication>\n\n")
 outfile.write("void dummyfn() {\n")
-for str in trstrings:
-	outfile.write("\tQCoreApplication::translate(\"qtmvvm_settings_xml\", \"{}\");\n".format(str))
+for src in tsmap:
+	for str in tsmap[src]:
+		outfile.write("\tQCoreApplication::translate(\"{}\", \"{}\");\n".format(src, str))
 outfile.write("}\n")
 outfile.close()
 
