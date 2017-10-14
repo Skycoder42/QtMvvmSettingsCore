@@ -2,9 +2,9 @@
 
 #include <QDebug>
 
-#define hasValue(key) attributes().hasAttribute(key)
-#define stringValue(key) attributes().value(key).toString()
-#define boolValue(key) attributes().value(key) == "true"
+#define hasValue(key) attributes().hasAttribute(QStringLiteral(key))
+#define stringValue(key) attributes().value(QStringLiteral(key)).toString()
+#define boolValue(key) attributes().value(QStringLiteral(key)) == QStringLiteral("true")
 
 QUrl XmlSettingsSetupLoader::defaultIcon(QStringLiteral("qrc:/qtmvvm/icons/settings.svg"));
 
@@ -17,13 +17,13 @@ SettingsSetup XmlSettingsSetupLoader::loadSetup(const QByteArray &platform, QIOD
 		extraProperties = readExtraProperties(extraPropertyDevice);
 
 	SettingsSetup setup;
-	if(!reader.readNextStartElement() || reader.name() != "SettingsConfig")
+	if(!reader.readNextStartElement() || reader.name() != QStringLiteral("SettingsConfig"))
 		throwError(reader);
 	setup.allowSearch = reader.boolValue("allowSearch");
 	setup.allowRestore = reader.boolValue("allowRestore");
 
 	if(reader.readNextStartElement()) {
-		if(reader.name() == "Category") {
+		if(reader.name() == QStringLiteral("Category")) {
 			do
 				setup.categories.append(readCategory(reader, platform, extraProperties));
 			while(reader.readNextStartElement());
@@ -39,17 +39,17 @@ void XmlSettingsSetupLoader::overwriteDefaultIcon(const QUrl &defaultIcon)
 	XmlSettingsSetupLoader::defaultIcon = defaultIcon;
 }
 
-void XmlSettingsSetupLoader::throwError(QXmlStreamReader &reader, const QString &customError)
+void XmlSettingsSetupLoader::throwError(QXmlStreamReader &reader, const QByteArray &customError)
 {
 	throw QStringLiteral("Failed to read settings with error %1 at %2:%3")
-			.arg(customError.isNull() ? reader.errorString() : customError)
+			.arg(customError.isNull() ? reader.errorString() : QString::fromUtf8(customError))
 			.arg(reader.lineNumber())
 			.arg(reader.columnNumber());
 }
 
 SettingsCategory XmlSettingsSetupLoader::readCategory(QXmlStreamReader &reader, const QByteArray &platform, const QVariantHash &extraProperties)
 {
-	if(reader.name() != "Category")
+	if(reader.name() != QStringLiteral("Category"))
 		throwError(reader, "Child Elements must be of the same type (Here: Category)");
 
 	SettingsCategory category;
@@ -64,7 +64,7 @@ SettingsCategory XmlSettingsSetupLoader::readCategory(QXmlStreamReader &reader, 
 		category.tooltip = reader.stringValue("tooltip");
 
 	if(reader.readNextStartElement()) {
-		if(reader.name() == "Section") {
+		if(reader.name() == QStringLiteral("Section")) {
 			do
 				category.sections.append(readSection(reader, platform, extraProperties));
 			while(reader.readNextStartElement());
@@ -79,7 +79,7 @@ SettingsCategory XmlSettingsSetupLoader::readDefaultCategory(QXmlStreamReader &r
 {
 	SettingsCategory category = createDefaultCategory();
 
-	if(reader.name() == "Section") {
+	if(reader.name() == QStringLiteral("Section")) {
 		do
 			category.sections.append(readSection(reader, platform, extraProperties));
 		while(reader.readNextStartElement());
@@ -91,7 +91,7 @@ SettingsCategory XmlSettingsSetupLoader::readDefaultCategory(QXmlStreamReader &r
 
 SettingsSection XmlSettingsSetupLoader::readSection(QXmlStreamReader &reader, const QByteArray &platform, const QVariantHash &extraProperties)
 {
-	if(reader.name() != "Section")
+	if(reader.name() != QStringLiteral("Section"))
 		throwError(reader, "Child Elements must be of the same type (Here: Section)");
 
 	SettingsSection section;
@@ -106,7 +106,7 @@ SettingsSection XmlSettingsSetupLoader::readSection(QXmlStreamReader &reader, co
 		section.tooltip = reader.stringValue("tooltip");
 
 	if(reader.readNextStartElement()) {
-		if(reader.name() == "Group") {
+		if(reader.name() == QStringLiteral("Group")) {
 			do
 				section.groups.append(readGroup(reader, platform, extraProperties));
 			while(reader.readNextStartElement());
@@ -121,7 +121,7 @@ SettingsSection XmlSettingsSetupLoader::readDefaultSection(QXmlStreamReader &rea
 {
 	SettingsSection section = createDefaultSection();
 
-	if(reader.name() == "Group") {
+	if(reader.name() == QStringLiteral("Group")) {
 		do
 			section.groups.append(readGroup(reader, platform, extraProperties));
 		while(reader.readNextStartElement());
@@ -133,7 +133,7 @@ SettingsSection XmlSettingsSetupLoader::readDefaultSection(QXmlStreamReader &rea
 
 SettingsGroup XmlSettingsSetupLoader::readGroup(QXmlStreamReader &reader, const QByteArray &platform, const QVariantHash &extraProperties)
 {
-	if(reader.name() != "Group")
+	if(reader.name() != QStringLiteral("Group"))
 		throwError(reader, "Child Elements must be of the same type (Here: Group)");
 
 	SettingsGroup group;
@@ -141,7 +141,7 @@ SettingsGroup XmlSettingsSetupLoader::readGroup(QXmlStreamReader &reader, const 
 		group.title = reader.stringValue("title");
 
 	if(reader.readNextStartElement()) {
-		if(reader.name() == "Entry") {
+		if(reader.name() == QStringLiteral("Entry")) {
 			do {
 				auto skip = false;
 				auto entry = readEntry(reader, platform, skip, extraProperties);
@@ -159,7 +159,7 @@ SettingsGroup XmlSettingsSetupLoader::readDefaultGroup(QXmlStreamReader &reader,
 {
 	SettingsGroup group;
 
-	if(reader.name() == "Entry") {
+	if(reader.name() == QStringLiteral("Entry")) {
 	   do {
 		   auto skip = false;
 		   auto entry = readEntry(reader, platform, skip, extraProperties);
@@ -177,7 +177,7 @@ SettingsEntry XmlSettingsSetupLoader::readEntry(QXmlStreamReader &reader, const 
 	SettingsEntry entry;
 
 	auto plt = reader.stringValue("platform");
-	skip = !plt.isEmpty() && !plt.contains(platform);
+	skip = !plt.isEmpty() && !plt.contains(QString::fromUtf8(platform));
 
 	if(!reader.hasValue("key"))
 		throwError(reader, "key attribute is required!");
@@ -192,9 +192,9 @@ SettingsEntry XmlSettingsSetupLoader::readEntry(QXmlStreamReader &reader, const 
 	entry.defaultValue = reader.stringValue("default");
 
 	while(reader.readNextStartElement()) {
-		if(reader.name() == "SearchKey")
+		if(reader.name() == QStringLiteral("SearchKey"))
 			entry.searchKeys.append(reader.readElementText());
-		else if(reader.name() == "Property") {
+		else if(reader.name() == QStringLiteral("Property")) {
 			auto prop = readProperty(reader);
 			entry.properties.insert(prop.first, prop.second);
 		} else
@@ -213,14 +213,14 @@ QVariantHash XmlSettingsSetupLoader::readExtraProperties(QIODevice *device)
 	QXmlStreamReader reader(device);
 	QVariantHash extraProperties;
 
-	if(!reader.readNextStartElement() || reader.name() != "SettingsProperties")
+	if(!reader.readNextStartElement() || reader.name() != QStringLiteral("SettingsProperties"))
 		throwError(reader);
 
 	while(reader.readNextStartElement()) {
-		if(reader.name() != "Entry")
+		if(reader.name() != QStringLiteral("Entry"))
 			throwError(reader, "Expected Element of type Entry");
 
-		auto property = readProperty(reader, "object");
+		auto property = readProperty(reader, QStringLiteral("object"));
 		extraProperties.insert(property.first, property.second);
 	}
 
@@ -245,24 +245,24 @@ QVariant XmlSettingsSetupLoader::readElement(QXmlStreamReader &reader, const QSt
 	else
 		type = overwriteType;
 
-	if(type == "string" || type.isEmpty())
+	if(type == QStringLiteral("string") || type.isEmpty())
 		return reader.readElementText();
-	else if(type == "number")
+	else if(type == QStringLiteral("number"))
 		return reader.readElementText().toDouble();
-	else if(type == "bool")
-		return (reader.readElementText() == "true");
-	else if(type == "list") {
+	else if(type == QStringLiteral("bool"))
+		return (reader.readElementText() == QStringLiteral("true"));
+	else if(type == QStringLiteral("list")) {
 		QVariantList list;
 		while (reader.readNextStartElement()) {
-			if(reader.name() != "Element")
+			if(reader.name() != QStringLiteral("Element"))
 				throwError(reader, "Expected Element of type Element");
 			list.append(readElement(reader));
 		}
 		return list;
-	} else if(type == "object") {
+	} else if(type == QStringLiteral("object")) {
 		QVariantMap map;
 		while (reader.readNextStartElement()) {
-			if(reader.name() != "Property")
+			if(reader.name() != QStringLiteral("Property"))
 				throwError(reader, "Expected Element of type Property");
 			auto property = readProperty(reader);
 			map.insert(property.first, property.second);

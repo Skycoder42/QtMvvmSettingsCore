@@ -17,7 +17,7 @@ public:
 private:
 	static QUrl defaultIcon;
 
-	void throwError(QXmlStreamReader &reader, const QString &customError = {});
+	void throwError(QXmlStreamReader &reader, const QByteArray &customError = {});
 
 	SettingsCategory readCategory(QXmlStreamReader &reader, const QByteArray &platform, const QVariantHash &extraProperties);
 	SettingsCategory readDefaultCategory(QXmlStreamReader &reader, const QByteArray &platform, const QVariantHash &extraProperties);
