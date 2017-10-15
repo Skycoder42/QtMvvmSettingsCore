@@ -8,15 +8,15 @@ from xml.etree.ElementTree import Element, parse
 
 bindir = sys.argv[1]
 srcdir = sys.argv[2]
-locales = sys.argv[3].split(" ")
-srces = sys.argv[4:]
+srces = sys.argv[3:]
+
+os.chdir(srcdir)
 
 tsmap = {}
-
 for src in srces:
 	trstrings = set()
 
-	tree = parse(os.path.join(srcdir, src))
+	tree = parse(src)
 	root = Element("TS")
 	for elem in tree.iter():
 		if elem.tag == "SearchKey":
@@ -29,7 +29,7 @@ for src in srces:
 
 	tsmap[os.path.basename(src)] = trstrings
 
-outfile = open(".qtmvvm_settings_xml_ts_dummy.cpp", "w")
+outfile = open(".qtmvvm_settings_xml_ts.cppdummy", "w")
 outfile.write("#include <QCoreApplication>\n\n")
 outfile.write("void dummyfn() {\n")
 for src in tsmap:
@@ -37,14 +37,3 @@ for src in tsmap:
 		outfile.write("\tQCoreApplication::translate(\"{}\", \"{}\");\n".format(src, str))
 outfile.write("}\n")
 outfile.close()
-
-args = [
-	os.path.join(bindir, "lupdate"),
-	"-locations",
-	"relative",
-	outfile.name,
-	"-ts"
-]
-for locale in locales:
-	args.append(os.path.join(srcdir, "qtmvvm_settings_xml_" + locale + ".ts"))
-subprocess.run(args)
